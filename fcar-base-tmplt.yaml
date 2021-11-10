@@ -1,0 +1,75 @@
+# kernel config
+    - path: /etc/sysctl.d/20-silence-audit.conf
+      mode: 0644      
+      contents:
+        inline: |
+          # Raise console message logging level from DEBUG (7) to WARNING (4)
+          # to hide audit messages from the interactive console
+          kernel.printk=4
+
+# Systemd services
+systemd:
+  units:
+
+# qemu-guest-agent
+    - name: setup-qemu-guest-agent.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Flatcar Setup Qemu Guest Agent
+        After=network-online.target
+        Require=network-online.target
+        ConditionKernelCommandLine=ignition.platform.id=qemu
+        ConditionPathExists=!/var/lib/qemu-guest-agent.stamp
+
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=/bin/rpm-ostree install qemu-guest-agent
+        ExecStart=/bin/touch /var/lib/qemu-guest-agent.stamp
+        ExecStart=/bin/systemctl --no-block reboot
+
+        [Install]
+        WantedBy=multi-user.target
+
+# fstrim
+    - name: fstrim.timer
+      enabled: true
+ 
+    - name: fstrim.service
+      dropins:
+        - name: override.conf
+          contents: |
+            [Service]
+            ExecStart=
+            ExecStart=/sbin/fstrim -av
+
+#Expose docker TCP socket
+
+    - name: docker-tcp.socket
+      enable: yes
+      mask: false
+      contents: |
+        [Unit]
+        Description=Docker Socket for the API
+
+        [Socket]
+        ListenStream=2375
+        BindIPv6Only=both
+        Service=docker.service
+
+        [Install]
+        WantedBy=sockets.target
+
+    - name: enable-docker-tcp.service
+      enable: true
+      contents: |
+        [Unit]
+        Description=Enable the Docker Socket for the API
+
+        [Service]
+        Type=oneshot
+        ExecStart=/usr/bin/systemctl enable docker-tcp.socket 
+
+        [Install]
+        WantedBy=sockets.target
