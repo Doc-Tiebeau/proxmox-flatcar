@@ -74,8 +74,7 @@ cdr2mask()
 # ==================================================================================================================================================================
 # main()
 #
-if [[ "${phase}" == "pre-start" ]]
-then
+if [[ "${phase}" == "pre-start" ]]; then
 	# instance_id="$(qm cloudinit dump ${vmid} meta | ${YQ} - 'instance-id')"
 	instance_id="$(qm cloudinit dump ${vmid} meta | ${YQ} '.instance-id' -)"
 
@@ -205,7 +204,7 @@ echo "
       overwrite: true
       contents:
         inline: |
-          ${hostname}
+          ${hostname,,}
 " >> ${FCAR_FILES_PATH}/${vmid}.yaml
 
 # Disable autologin
@@ -255,7 +254,7 @@ echo "
 		# hack for reload new ignition file
 		echo -e "\nWARNING: New generated Flatcar Linux ignition settings, restarting vm ${vmid}."
 		qm start ${vmid}
-		sleep 10
+		sleep 20
 		qm stop ${vmid} && sleep 2 && qm start ${vmid}
 		exit 0
 	}

@@ -29,8 +29,6 @@ fi
 
 TEMPLATE_NAME_FULL="${TEMPLATE_NAME}-${VERSION}"
 
-echo "DEBUG: TEMPLATE_RECREATE=$TEMPLATE_RECREATE"
-
 if [[ -f ${TEMPLATE_NAME_FULL}.id ]] && [[ ${TEMPLATE_RECREATE} != true ]];then
         echo "${TEMPLATE_NAME_FULL} exists. Recreating not asked."
         sleep 2
