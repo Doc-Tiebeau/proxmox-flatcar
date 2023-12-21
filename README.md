@@ -30,7 +30,7 @@ BASEURL=https://stable.release.flatcar-linux.net
 4. run `./template_deploy.sh`
 5. Clone the template on same host.
 6. BEFORE first boot: update CloudInit config in Proxmox GUI (no update after first boot)
-7. Wait for multiple reboot the enjoy
+7. Wait for multiple reboot then enjoy
 
 **Note**: Docker TCP socket is exposed by default
 
